@@ -5,13 +5,15 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/tyler-smith/go-bip39"
 )
 
 const (
-	minDeriverIndex = 1
-	maxDeriverIndex = 4096
+	mnemonicWordLength = 12
+	minDeriverIndex    = 1
+	maxDeriverIndex    = 4096
 )
 
 func main() {
@@ -34,7 +36,13 @@ func newMnemonic(brainMessage string, deriverIndex int) (string, error) {
 		entropy = hashData[:]
 	}
 
-	return bip39.NewMnemonic(entropy)
+	mnemonic, err := bip39.NewMnemonic(entropy)
+	if err != nil {
+		return "", err
+	}
+
+	words := strings.Split(mnemonic, " ")
+	return strings.Join(words[:mnemonicWordLength], " "), nil
 }
 
 func readBrainMessage() string {
