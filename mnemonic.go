@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/ecdsa"
 	"crypto/sha256"
 	"log"
 	"os"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/tyler-smith/go-bip39"
 )
 
@@ -16,6 +18,12 @@ const (
 	mnemonicWordLength = 12
 	minDeriverIndex    = 1
 	maxDeriverIndex    = 4096
+)
+
+var (
+	// define by https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki
+	bitcoinDeriverPath = []uint32{44, 0, 0, 0, 0}
+	etherumDeriverPath = []uint32{44, 60, 0, 0, 0}
 )
 
 func main() {
@@ -30,27 +38,31 @@ func main() {
 	log.Printf("your brain message is \"%s\", the deriver index is %d", brainMessage, deriverIndex)
 	log.Printf("this is your mnemonic: \"%s\"", mnemonic)
 
+	// print main address for different chains
+	echoAddresses(mnemonic)
+}
+
+func echoAddresses(mnemonic string) {
 	seed := bip39.NewSeed(mnemonic, "")
 	bitcoinAddress, err := calcBitcoinAddress(seed)
 	if err != nil {
 		log.Fatalf("fail to calculate bitcoin address: %v", err)
 	}
 
+	etherumAddress, err := calcEtherumAddress(seed)
+	if err != nil {
+		log.Fatalf("fail to calculate etherum address: %v", err)
+	}
+
 	log.Printf("bitcoin mainnet adress is: %s", bitcoinAddress)
+	log.Printf("etherum mainnet adress is: %s", etherumAddress)
+
 }
 
 func calcBitcoinAddress(seed []byte) (string, error) {
-	key, err := hdkeychain.NewMaster(seed, &chaincfg.MainNetParams)
+	key, err := calcDeriverKey(seed, bitcoinDeriverPath)
 	if err != nil {
 		return "", err
-	}
-
-	// follow by https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki
-	mainAddressPaths := []uint32{hdkeychain.HardenedKeyStart + 44, hdkeychain.HardenedKeyStart + 0, hdkeychain.HardenedKeyStart + 0, 0, 0}
-	for _, path := range mainAddressPaths {
-		if key, err = key.Child(path); err != nil {
-			return "", err
-		}
 	}
 
 	address, err := key.Address(&chaincfg.MainNetParams)
@@ -59,6 +71,41 @@ func calcBitcoinAddress(seed []byte) (string, error) {
 	}
 
 	return address.String(), nil
+}
+
+func calcDeriverKey(seed []byte, paths []uint32) (*hdkeychain.ExtendedKey, error) {
+	key, err := hdkeychain.NewMaster(seed, &chaincfg.MainNetParams)
+	if err != nil {
+		return nil, err
+	}
+
+	for i, path := range paths {
+		// follow by bip44 rule
+		if i < 3 {
+			path += hdkeychain.HardenedKeyStart
+		}
+
+		if key, err = key.Child(path); err != nil {
+			return nil, err
+		}
+	}
+
+	return key, nil
+}
+
+func calcEtherumAddress(seed []byte) (string, error) {
+	key, err := calcDeriverKey(seed, etherumDeriverPath)
+	if err != nil {
+		return "", err
+	}
+
+	pubkey, err := key.ECPubKey()
+	if err != nil {
+		return "", err
+	}
+
+	address := crypto.PubkeyToAddress(ecdsa.PublicKey(*pubkey))
+	return address.Hex(), nil
 }
 
 func newMnemonic(brainMessage string, deriverIndex int) (string, error) {
