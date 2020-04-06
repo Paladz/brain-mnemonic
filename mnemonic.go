@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/tyler-smith/go-bip39"
 )
 
@@ -27,6 +29,36 @@ func main() {
 
 	log.Printf("your brain message is \"%s\", the deriver index is %d", brainMessage, deriverIndex)
 	log.Printf("this is your mnemonic: \"%s\"", mnemonic)
+
+	seed := bip39.NewSeed(mnemonic, "")
+	bitcoinAddress, err := calcBitcoinAddress(seed)
+	if err != nil {
+		log.Fatalf("fail to calculate bitcoin address: %v", err)
+	}
+
+	log.Printf("bitcoin mainnet adress is: %s", bitcoinAddress)
+}
+
+func calcBitcoinAddress(seed []byte) (string, error) {
+	key, err := hdkeychain.NewMaster(seed, &chaincfg.MainNetParams)
+	if err != nil {
+		return "", err
+	}
+
+	// follow by https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki
+	mainAddressPaths := []uint32{hdkeychain.HardenedKeyStart + 44, hdkeychain.HardenedKeyStart + 0, hdkeychain.HardenedKeyStart + 0, 0, 0}
+	for _, path := range mainAddressPaths {
+		if key, err = key.Child(path); err != nil {
+			return "", err
+		}
+	}
+
+	address, err := key.Address(&chaincfg.MainNetParams)
+	if err != nil {
+		return "", err
+	}
+
+	return address.String(), nil
 }
 
 func newMnemonic(brainMessage string, deriverIndex int) (string, error) {
