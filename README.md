@@ -4,6 +4,13 @@ A command-line tool for using any message in your mind to generate 12 mnemonic w
   2. Don't worry about forgetting your mnemonic or the mnemonic got stolen。
   3. One brain message can generate unlimited mnemonics and each one is security isolation.
 
+## Usage
+```
+go run mnemonic.go <message> <deriver-index>
+```
+**message**(_string_, _require_): The secret message in your brain, you can recover all your mnemonics as long as you remember this.
+**deriver-index**(_int_, _option_): An int index for make one message generate different isolation mnemonics, the default is 1
+
 ## Example
 create simple brain mnemonic
 ```
