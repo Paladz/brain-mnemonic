@@ -27,3 +27,8 @@ go run mnemonic.go "whatever in your mind" 73
 your brain message is "whatever in your mind", the deriver index is 73
 this is your mnemonic: "nephew eager harsh nerve layer clock obtain task diary stove morning stem"
 ```
+
+## Security
+1. This is an open-source repo that you can trust and verify. We use go mod instead of go vendor to prevent anyone inserts back door in vendor files.
+2. This project sticks to use go native library. The only 3rd parity library is [go-bip39](https://github.com/tyler-smith/go-bip39), But we use go mod to make sure we use the same version as [Ethereum](https://github.com/ethereum/go-ethereum/releases/tag/v1.9.12)(which already verify by thousands of developers).
+3. The only weak point of this tool is using a weak message to generate mnemonics. Please don't use birthday, phone number, or anything easy to guess.
