@@ -17,7 +17,9 @@ create simple brain mnemonic
 go run mnemonic.go "whatever in your mind"
 
 your brain message is "whatever in your mind", the deriver index is 1
-this is your mnemonic: "siren hand term grab dignity entire bike grace fuel document grace drip"
+this is your mnemonic: "siren hand term grab dignity entire bike grace fuel document grace drip gate bench pioneer save absorb ostrich inmate grunt sea horse clinic subway"
+bitcoin mainnet adress is: 1KB8WHSjrL146WVLdsabvYLkcbkPkNRwD8
+etherum mainnet adress is: 0x16d03f4B955785A409db79c85Fec9eC367cCc761
 ```
 
 create your 73th brain mnemonic with the same secret message
@@ -25,7 +27,9 @@ create your 73th brain mnemonic with the same secret message
 go run mnemonic.go "whatever in your mind" 73
 
 your brain message is "whatever in your mind", the deriver index is 73
-this is your mnemonic: "nephew eager harsh nerve layer clock obtain task diary stove morning stem"
+this is your mnemonic: "nephew eager harsh nerve layer clock obtain task diary stove morning stem install student wise survey decline shy neutral nation script enjoy tornado panic"
+bitcoin mainnet adress is: 18HWNuEPyvPkTZYVergsZDS12kiJqm2q2g
+etherum mainnet adress is: 0xe2ce59467F3C0AE2b65b8e1CC1e9a31F7De3C956
 ```
 
 ## Security
