@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"strconv"
-	"strings"
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
@@ -15,9 +14,8 @@ import (
 )
 
 const (
-	mnemonicWordLength = 12
-	minDeriverIndex    = 1
-	maxDeriverIndex    = 4096
+	minDeriverIndex = 1
+	maxDeriverIndex = 4096
 )
 
 var (
@@ -115,13 +113,7 @@ func newMnemonic(brainMessage string, deriverIndex int) (string, error) {
 		entropy = hashData[:]
 	}
 
-	mnemonic, err := bip39.NewMnemonic(entropy)
-	if err != nil {
-		return "", err
-	}
-
-	words := strings.Split(mnemonic, " ")
-	return strings.Join(words[:mnemonicWordLength], " "), nil
+	return bip39.NewMnemonic(entropy)
 }
 
 func readBrainMessage() string {
