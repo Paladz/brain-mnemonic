@@ -65,6 +65,11 @@ func calcBitcoinAddress(seed []byte) (string, error) {
 		return "", err
 	}
 
+	addressPubKeyHash, err := key.Address(&chaincfg.MainNetParams)
+	if err != nil {
+		return "", err
+	}
+
 	// generate the P2SH-P2WPKH Address, 0x0014 is the hard code protocol
 	script := addressPubKeyHash.ScriptAddress()
 	script = append([]byte{0x00, 0x14}, script...)
