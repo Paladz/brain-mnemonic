@@ -3,11 +3,13 @@ package main
 import (
 	"crypto/ecdsa"
 	"crypto/sha256"
+
 	"log"
 	"os"
 	"strconv"
 
 	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/btcsuite/btcutil"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/tyler-smith/go-bip39"
@@ -20,7 +22,7 @@ const (
 
 var (
 	// define by https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki
-	bitcoinDeriverPath = []uint32{44, 0, 0, 0, 0}
+	bitcoinDeriverPath = []uint32{49, 0, 0, 0, 0}
 	etherumDeriverPath = []uint32{44, 60, 0, 0, 0}
 )
 
@@ -63,12 +65,15 @@ func calcBitcoinAddress(seed []byte) (string, error) {
 		return "", err
 	}
 
-	address, err := key.Address(&chaincfg.MainNetParams)
+	// generate the P2SH-P2WPKH Address, 0x0014 is the hard code protocol
+	script := addressPubKeyHash.ScriptAddress()
+	script = append([]byte{0x00, 0x14}, script...)
+	addressScriptHash, err := btcutil.NewAddressScriptHash(script, &chaincfg.MainNetParams)
 	if err != nil {
 		return "", err
 	}
 
-	return address.String(), nil
+	return addressScriptHash.String(), nil
 }
 
 func calcDeriverKey(seed []byte, paths []uint32) (*hdkeychain.ExtendedKey, error) {
